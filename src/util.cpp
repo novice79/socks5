@@ -57,10 +57,36 @@ void Util::init_log()
     );
     // register sink
     logging::core::get()->add_sink(sink);
-
+	// enum severity_level
+	// {
+	// 	trace,
+	// 	debug,
+	// 	info,
+	// 	warning,
+	// 	error,
+	// 	fatal
+	// };
+	static map<string, logging::trivial::severity_level> log_level_map = {
+		{ "trace", logging::trivial::trace },
+		{ "debug", logging::trivial::debug },
+		{ "info", logging::trivial::info },
+		{ "warning", logging::trivial::warning },
+		{ "error", logging::trivial::error },
+		{ "fatal", logging::trivial::fatal }
+	};
+	logging::trivial::severity_level ll = logging::trivial::warning;
+	auto log_level = std::getenv("LOG");
+	if(log_level)
+	{
+		auto it = log_level_map.find(log_level);
+		if(it != log_level_map.end())
+		{
+			ll = it->second;
+		}
+	}
 	logging::core::get()->set_filter
 	(
-		logging::trivial::severity >= logging::trivial::trace
+		logging::trivial::severity >= ll
 	);
 	logging::add_common_attributes();
 }

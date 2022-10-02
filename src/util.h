@@ -1,8 +1,11 @@
 #pragma once
+#include <cstdlib>
+#include <map>
 #include <boost/version.hpp>
 #include <boost/asio.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/preprocessor.hpp>

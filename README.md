@@ -6,7 +6,8 @@ This is simple realization of socks5 proxy server according to the [RFC 1928](ht
 
 ## Build
 
-On *nix OS just run ./build.sh, example app & lib/include file will be installed in $PWD/dist dir
+On *nix OS just run ./build.sh   
+example app & lib/include file will be installed in $PWD/<u>dist</u> dir
 
 ## test
 
@@ -14,7 +15,11 @@ in one screen window start socks5 proxy server
 
     dist/bin/test
 
+or show trace log like this
+
+    LOG=trace dist/bin/test
+
 in another window, test it via curl
 
-    curl -x socks5://127.0.0.1:1080 baidu.com
+    curl -x socks5h://127.0.0.1:1080 baidu.com
 

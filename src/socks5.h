@@ -12,12 +12,15 @@ namespace this_coro = boost::asio::this_coro;
 #define BUFFER_SIZE 2048
 class Session : public std::enable_shared_from_this<Session>
 {
+	std::shared_ptr<Util> util_;
 public:
-	Session(tcp::socket in_socket, boost::asio::io_context& io)
+	Session(tcp::socket in_socket, boost::asio::io_context& io, std::shared_ptr<Util> util)
 		:	in_socket_(std::move(in_socket)), 
-			out_socket_(io)
+			out_socket_(io), util_(util)
 	{
+		client_ep_ = in_socket_.remote_endpoint();
 	}
+	~Session();
 	void start()
 	{
 		co_spawn(
@@ -32,7 +35,8 @@ private:
 	awaitable<void> handshake();
 	awaitable<bool> read_req();
 	awaitable<bool> handle_req();
-	awaitable<void> cross_two_tcp();
+	void read_client_tcp();
+	void read_server_tcp();
 	awaitable<void> cross_udp();
 	awaitable<std::tuple<bool, udp::resolver::results_type, uint8_t>> resolve_udp_target_addr();
 	awaitable<void> listener();
@@ -46,21 +50,24 @@ private:
 	uint8_t in_buf_[BUFFER_SIZE];
 	uint8_t out_buf_[BUFFER_SIZE];
 	uint8_t a_type_, cmd_;
+	// for log usage
+	tcp::endpoint client_ep_, target_ep_;
 };
 
 class Socks5
 {
 	std::shared_ptr<Util> util_;
 public:
-	Socks5(int port)
-		: acceptor_(io_, tcp::endpoint(tcp::v4(), port)), util_(new Util())
+	// arg use for get executable path, and to write log there
+	Socks5(int port, std::string arg0 = "")
+		: acceptor_(io_, tcp::endpoint(tcp::v4(), port)), util_(new Util(arg0))
 	{	
 		
 	}
 	void run()
 	{
 		co_spawn(io_, do_accept(),  detached);
-		LOGD("listen on %d", acceptor_.local_endpoint().port() )
+		LOGD("socks5 proxy server listen on: %d", acceptor_.local_endpoint().port() )
 		io_.run();
 	}
 private:
@@ -70,7 +77,8 @@ private:
 		{
 			std::make_shared<Session>(
 				co_await acceptor_.async_accept(use_awaitable),
-				io_
+				io_,
+				util_
 			)->start();
 		}
 	}
