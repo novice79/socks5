@@ -25,7 +25,7 @@ add_executable(test ${SOURCE_EXAMPLE_FILES})
 
 set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
-find_package(Boost REQUIRED COMPONENTS 
+find_package(Boost 1.79 REQUIRED COMPONENTS 
     json
     system 
     filesystem
