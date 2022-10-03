@@ -13,20 +13,24 @@ jobs:
   create_release:
     name: Create Release
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: actions/create-release@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
           body: |
-            Auto build macos binary
-            - Test github actions workflow
+            Auto build boost and socks5 binary
+            - macos
+            - windows
           draft: false
           prerelease: false
+
   build_release:
     name: Build Release
     needs: create_release
@@ -54,8 +58,20 @@ jobs:
           --with-json --with-system --with-filesystem --with-log \
           cxxstd=20 variant=release link=static threading=multi install 
       
+      - name: Build boost for windows_x64
+        run: |
+          echo "using gcc :  : x86_64-w64-mingw32-g++ ;" > $HOME/win64.jam
+          ./b2 --user-config=$HOME/win64.jam \
+          --prefix=$HOME/clib-prebuilt/win64 target-os=windows \
+          --build-dir=/tmp \
+          --with-json --with-system --with-filesystem --with-log \
+          cxxstd=20 variant=release link=static threading=multi install
+
       - name: Build socks5 server for macos
         run: ./build.sh
+
+      - name: Build socks5 server for windows_x64
+        run: ./build-win64.sh
 
       - name: Upload macos build assets
         id: upload_macos_assets
@@ -66,5 +82,16 @@ jobs:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: ${{ github.workspace }}/_build/socks5.zip
           asset_name: socks5-macos.zip
+          asset_content_type: application/octet-stream
+
+      - name: Upload windows build assets
+        id: upload_win64_assets
+        uses: actions/upload-release-asset@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ${{ github.workspace }}/_build_win64/socks5.zip
+          asset_name: socks5-win64.zip
           asset_content_type: application/octet-stream
       
