@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(main)
+project(s5)
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 20)
@@ -21,7 +21,7 @@ add_library(socks5 STATIC ${SOURCE_FILES})
 set(SOURCE_EXAMPLE_FILES
     "example/test.cpp"
 )
-add_executable(test ${SOURCE_EXAMPLE_FILES})
+add_executable(${PROJECT_NAME} ${SOURCE_EXAMPLE_FILES})
 
 set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
@@ -35,14 +35,17 @@ find_package(Boost 1.79 REQUIRED COMPONENTS
 
 include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries(socks5 ${Boost_LIBRARIES} )
-target_link_libraries(test ${Boost_LIBRARIES} socks5)
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} socks5)
 
 install(TARGETS socks5  LIBRARY DESTINATION lib)
-install(FILES src/socks5.h DESTINATION include)
-# install (
-#     DIRECTORY ${CMAKE_SOURCE_DIR}/src/
-#     DESTINATION include
-#     FILES_MATCHING PATTERN "*.h*")
-install(TARGETS test DESTINATION bin)
+# install(FILES src/socks5.h DESTINATION include)
+install (
+    DIRECTORY ${CMAKE_SOURCE_DIR}/src/
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.h*")
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 
-
+set(CPACK_PACKAGE_FILE_NAME "socks5")
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+include(CPack)

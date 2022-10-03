@@ -1,0 +1,70 @@
+name: build-release
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  create_release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Auto build macos binary
+            - Test github actions workflow
+          draft: false
+          prerelease: false
+  build_release:
+    name: Build Release
+    needs: create_release
+    strategy:
+      matrix:
+        os: [ macos-latest ]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install build tools
+        run: |
+          brew install mingw-w64 ninja
+
+      - name: Download and build boost for macos
+        run: |
+          curl -OL https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.7z
+          7z x boost_1_80_0.7z
+          cd boost_1_80_0
+          ./bootstrap.sh
+          ./b2 --prefix=$HOME/clib-prebuilt/macos \
+          --build-dir=/tmp \
+          --with-json --with-system --with-filesystem --with-log \
+          cxxstd=20 variant=release link=static threading=multi install 
+      
+      - name: Build socks5 server for macos
+        run: ./build.sh
+
+      - name: Upload macos build assets
+        id: upload_macos_assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ${{ github.workspace }}/_build/socks5.zip
+          asset_name: socks5-macos.zip
+          asset_content_type: application/octet-stream
+      

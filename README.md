@@ -8,6 +8,9 @@ This is simple realization of socks5 proxy server according to the [RFC 1928](ht
 
 [boost](https://www.boost.org/)
 
+*build tools:*   
+g++ or clang++ and cmake+ninja
+
 ## Build
 
 On *nix OS just run ./build.sh   
@@ -17,11 +20,11 @@ example app & lib/include file will be installed in $PWD/<u>dist</u> dir
 
 in one screen window start socks5 proxy server
 
-    dist/bin/test
+    dist/bin/s5
 
 or show trace log like this
 
-    LOG=trace dist/bin/test
+    LOG=trace dist/bin/s5
 
 in another window, test it via curl
 

@@ -187,7 +187,7 @@ void Session::read_client_tcp()
     auto self(shared_from_this());
     in_socket_.async_read_some(
         asio::buffer(in_buf_),
-        [=](const boost::system::error_code &ec, std::size_t n)
+        [this, self](const boost::system::error_code &ec, std::size_t n)
         {
             if (!ec)
             {
@@ -195,7 +195,7 @@ void Session::read_client_tcp()
                 asio::async_write(
                     out_socket_,
                     asio::buffer(in_buf_, n),
-                    [=](const boost::system::error_code &ec, std::size_t n)
+                    [this, self](const boost::system::error_code &ec, std::size_t n)
                     {
                         if (!ec)
                         {
@@ -230,7 +230,7 @@ void Session::read_server_tcp()
     auto self(shared_from_this());
     out_socket_.async_read_some(
         asio::buffer(out_buf_),
-        [=](const boost::system::error_code &ec, std::size_t n)
+        [this, self](const boost::system::error_code &ec, std::size_t n)
         {
             if (!ec)
             {
@@ -238,7 +238,7 @@ void Session::read_server_tcp()
                 asio::async_write(
                     in_socket_,
                     asio::buffer(out_buf_, n),
-                    [=](const boost::system::error_code &ec, std::size_t n)
+                    [this, self](const boost::system::error_code &ec, std::size_t n)
                     {
                         if (!ec)
                         {
