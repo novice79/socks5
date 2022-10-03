@@ -3,6 +3,7 @@ name: build-release
 on:
   push:
     branches: [ "master" ]
+    # tags: ["v*"]
   pull_request:
     branches: [ "master" ]
 
@@ -28,13 +29,34 @@ jobs:
           release_name: Release at ${{ env.NOW }}
           body: |
             Auto build boost and socks5 binary
-            - macos
-            - windows
+            - macos_x64
+            - windows_x64
+            - linux_x64
           draft: false
           prerelease: false
 
-  build_release:
-    name: Build Release
+  build_linux_release:
+    name: Build linux release
+    needs: create_release
+    runs-on: ubuntu-latest
+    container:
+      image: novice/build:alpine
+    steps:
+      - name: Build socks5 server for linux
+        run: ./build.sh
+      - name: Upload linux build assets
+        id: upload_linux_assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ${{ github.workspace }}/_build/socks5.zip
+          asset_name: socks5-linux.zip
+          asset_content_type: application/octet-stream
+
+  build_macos_win64_release:
+    name: Build macos and win64 release
     needs: create_release
     strategy:
       matrix:

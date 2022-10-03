@@ -7,3 +7,5 @@ gh release delete -y "$line";
 done
 
 git ls-remote --tags origin | awk '{print $2}' | xargs -n 1 git push --delete origin
+
+

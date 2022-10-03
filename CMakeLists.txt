@@ -25,7 +25,7 @@ add_executable(${PROJECT_NAME} ${SOURCE_EXAMPLE_FILES})
 
 set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
-find_package(Boost 1.79 REQUIRED COMPONENTS 
+find_package(Boost 1.77 REQUIRED COMPONENTS 
     json
     system 
     filesystem
@@ -36,7 +36,10 @@ find_package(Boost 1.79 REQUIRED COMPONENTS
 include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries(socks5 ${Boost_LIBRARIES} )
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} socks5)
-
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    message("build on alpine, link static libc & libc++")
+    target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS} -static -static-libstdc++ -static-libgcc)
+endif()
 install(TARGETS socks5  LIBRARY DESTINATION lib)
 # install(FILES src/socks5.h DESTINATION include)
 install (
