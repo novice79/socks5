@@ -16,14 +16,17 @@ jobs:
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
+      - name: Set current date time as env variable
+        run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ env.NOW }}
+          release_name: Release at ${{ env.NOW }}
           body: |
             Auto build boost and socks5 binary
             - macos
@@ -83,7 +86,12 @@ jobs:
           asset_path: ${{ github.workspace }}/_build/socks5.zip
           asset_name: socks5-macos.zip
           asset_content_type: application/octet-stream
-
+# delete previous release
+# brew install gh
+# gh release delete refs/heads/master
+# git ls-remote --tags origin
+# git push --delete origin refs/tags/refs/heads/master
+# git push origin :refs/tags/refs/heads/master
       - name: Upload windows build assets
         id: upload_win64_assets
         uses: actions/upload-release-asset@latest
