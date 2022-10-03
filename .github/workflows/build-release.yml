@@ -40,8 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: novice/build:alpine
-      options: 
-        - platform: linux/arm/v7
+      options: --platform linux/arm/v7
     steps:
       - name: Checkout
         uses: actions/checkout@v3
