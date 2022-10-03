@@ -63,7 +63,7 @@ jobs:
       - name: Build boost for windows_x64
         run: |
           echo "using gcc :  : x86_64-w64-mingw32-g++ ;" > $HOME/win64.jam
-          ls alh
+          ls -alh
           cd boost_1_80_0
           ./b2 --user-config=$HOME/win64.jam \
           --prefix=$HOME/clib-prebuilt/win64 target-os=windows \
