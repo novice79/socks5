@@ -17,11 +17,7 @@ jobs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - name: Set current date time as env variable
-        run: echo "NOW=$(date +'%Y-%m-%d_%H:%M:%S')" >> $GITHUB_ENV
-      - name: Create tag in public repository
-        run: |
-          git tag ${{ env.NOW }}
-          git push --tags --porcelain
+        run: echo "NOW=v$(date +'%Y%m%d.%H%M%S')" >> $GITHUB_ENV
       - name: Create Release
         id: create_release
         uses: actions/create-release@latest
