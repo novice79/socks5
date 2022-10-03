@@ -32,15 +32,13 @@ jobs:
             - macos_x64
             - windows_x64
             - linux_x64
+            - linux_arm32v7 for raspberry pi or android
           draft: false
           prerelease: false
 
   build_raspi_release:
     needs: create_release
     runs-on: ubuntu-latest
-    # container:
-    #   image: novice/build:alpine
-    #   options: --platform linux/arm/v7
     steps:
       - name: Checkout
         uses: actions/checkout@v3
