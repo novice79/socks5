@@ -38,19 +38,23 @@ jobs:
   build_raspi_release:
     needs: create_release
     runs-on: ubuntu-latest
-    container:
-      image: novice/build:alpine
-      options: --platform linux/arm/v7
+    # container:
+    #   image: novice/build:alpine
+    #   options: --platform linux/arm/v7
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      # these should be in host, not container
-      # - name: Set up QEMU
-      #   uses: docker/setup-qemu-action@v2
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
       - name: Build socks5 server for raspberry pi
-        run: ./build.sh
+        run: |
+          docker run --rm \
+          -v $(pwd):/src -w /src \
+          --platform linux/arm/v7 \
+          novice/build:alpine \
+          ./build.sh
       - name: Upload raspberry pi build assets
         id: upload_raspi_assets
         uses: actions/upload-release-asset@v1
